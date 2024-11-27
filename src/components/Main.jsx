@@ -18,7 +18,7 @@ const Main = () => {
     if (file) {
       alert("image uploaded successfully");
       setImage(file);
-      console.log("Selected file:", file);
+      // console.log("Selected file:", file);
       const reader = new FileReader();
       reader.onload = (e) => {
         setUploadedImage(e.target.result);
@@ -49,7 +49,7 @@ const Main = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/process-image",
+        "https://gpt-backend-f39t.onrender.com/api/process-image",
         formData,
         {
           headers: {
