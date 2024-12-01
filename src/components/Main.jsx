@@ -88,13 +88,13 @@ const Main = () => {
       </div>
       <div className="main-container">
         <>
-          <div className="greet">
+          { !uploadedImage && <div className="greet">
             <p className="color-text">Demo for Mr. Debashis Chakraborty</p>
 
             <p className="editor-name">
               Please upload your document to proceed
             </p>
-          </div>
+          </div>}
         </>
 
         <div className="result">
@@ -111,8 +111,8 @@ const Main = () => {
                 src={uploadedImage}
                 alt="Uploaded Preview"
                 style={{
-                  width: "auto",
-                  height: "auto",
+                  width: "800px",
+                  height: "400px",
                   borderRadius: 0,
                   //   border: "1px solid #ccc",
                 }}
