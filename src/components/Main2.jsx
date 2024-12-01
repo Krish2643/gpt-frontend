@@ -4,23 +4,24 @@ import axios from "axios";
 import "./Main.css";
 
 const Main = () => {
+  let showResults = true;
+
   const [input, setInput] = useState("");
   const [recentPrompt, setRecentPrompt] = useState("");
   const [image, setImage] = useState(null);
-
+  const [result, setResult] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [uploadedImage, setUploadedImage] = useState(null);
-
-  const [extractedText, setExtractedText] = useState("");
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     if (file) {
       alert("image uploaded successfully");
-      setUploadedImage(file);
+      setImage(file);
+      // console.log("Selected file:", file);
       const reader = new FileReader();
       reader.onload = (e) => {
-        setImage(e.target.result);
+        setUploadedImage(e.target.result);
       };
       reader.readAsDataURL(file);
     }
@@ -65,86 +66,19 @@ const Main = () => {
     }
   };
 
-  const extractTextFromImage = async () => {
-    if (!uploadedImage) {
-      alert("Please upload an image first.");
-      return;
+  function formatData(input) {
+    // Split the input based on the numbered sections
+    const regex = /\d+\.\s\*\*(.*?)\*\*:\s([^\d]+)/g;
+    let matches;
+    const formattedData = [];
+
+    // Match the parts (e.g., Definition, Name) and their respective descriptions
+    while ((matches = regex.exec(input)) !== null) {
+      formattedData.push(`${matches[1]}: ${matches[2].trim()}`);
     }
 
-    if (input.length < 1) {
-      alert("Please enter prompt...");
-      return;
-    }
-
-    setIsLoading(true);
-    console.log(input);
-    setRecentPrompt(input);
-    setInput("");
-
-    try {
-      const subscriptionKey = import.meta.env.VITE_subscription_Key;
-
-      const endpoint = import.meta.env.VITE_endpoint;
-
-      // Step 1: Submit the image to the Read API
-      const readResponse = await axios.post(
-        `${endpoint}/vision/v3.2/read/analyze`,
-        uploadedImage,
-        {
-          headers: {
-            "Ocp-Apim-Subscription-Key": subscriptionKey,
-            "Content-Type": "application/octet-stream", // Important for binary files
-          },
-        }
-      );
-
-      // Get the operation location from the headers
-      const operationLocation = readResponse.headers["operation-location"];
-      if (!operationLocation) {
-        throw new Error("Failed to get operation location.");
-      }
-
-      // Step 2: Poll the Read API until the processing is complete
-      let result = null;
-      while (true) {
-        const statusResponse = await axios.get(operationLocation, {
-          headers: {
-            "Ocp-Apim-Subscription-Key": subscriptionKey,
-          },
-        });
-
-        const { status, analyzeResult } = statusResponse.data;
-
-        if (status === "succeeded") {
-          result = analyzeResult;
-          break;
-        } else if (status === "failed") {
-          throw new Error("Text recognition failed.");
-        }
-
-        // Wait before polling again
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-      }
-
-      // Step 3: Extract text from the result
-      let extracted = "";
-      result.readResults.forEach((page) => {
-        page.lines.forEach((line) => {
-          extracted += line.text + "\n";
-        });
-      });
-
-      setExtractedText(extracted || "No handwritten text found.");
-    } catch (error) {
-      console.error(
-        "Error extracting text:",
-        error.response?.data || error.message
-      );
-      alert("Failed to extract text. Please check your configuration.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    return `${formattedData.join("\n")}`;
+  }
 
   return (
     <div className="main">
@@ -154,38 +88,37 @@ const Main = () => {
       </div>
       <div className="main-container">
         <>
-          {!uploadedImage && (
-            <div className="greet">
-              <p className="color-text">Demo for Mr. Debashis Chakraborty</p>
+          { !uploadedImage && <div className="greet">
+            <p className="color-text">Demo for Mr. Debashis Chakraborty</p>
 
-              <p className="editor-name">
-                Please upload your document to proceed
-              </p>
-            </div>
-          )}
+            <p className="editor-name">
+              Please upload your document to proceed
+            </p>
+          </div>}
         </>
 
         <div className="result">
           <div className="result-title">
             <div className="result-des">
-              <div className="result-extra">
+             <div className="result-extra">
                 <img src={assets.user} alt="" />
                 <p className="result-prompt">Promt: {recentPrompt}</p>
               </div>
-              {uploadedImage && (
-                <div>
-                  <p>Preview:</p>
-                  <img
-                    src={image}
-                    alt="Uploaded Preview"
-                    style={{
-                      width: "800px",
-                      height: "400px",
-                      borderRadius: 0,
-                    }}
-                  />
-                </div>
-              )}
+            {uploadedImage && (
+            <div>
+              <p>Preview:</p>
+              <img
+                src={uploadedImage}
+                alt="Uploaded Preview"
+                style={{
+                  width: "800px",
+                  height: "400px",
+                  borderRadius: 0,
+                  
+                }}
+              />
+            </div>
+          )}
 
               {isLoading ? (
                 <div className="loader">
@@ -194,12 +127,7 @@ const Main = () => {
                   <hr />
                 </div>
               ) : (
-                <pre
-                  style={{ whiteSpace: "pre-wrap" }}
-                  className="result-answer"
-                >
-                  {extractedText}
-                </pre>
+                <p className="result-answer" >{result}</p>
               )}
             </div>
           </div>
@@ -239,7 +167,7 @@ const Main = () => {
                 src={assets.send_icon}
                 alt=""
                 onClick={() => {
-                  extractTextFromImage();
+                  handleSubmit();
                 }}
               />
             </div>
