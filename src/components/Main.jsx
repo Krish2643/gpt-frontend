@@ -13,54 +13,44 @@ const Main = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [uploadedImage, setUploadedImage] = useState(null);
 
-  const handleFileChange = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      alert("image uploaded successfully");
-      setImage(file);
-      // console.log("Selected file:", file);
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setUploadedImage(e.target.result);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
+  // const handleFileChange = (event) => {
+  //   const file = event.target.files[0];
+  //   if (file) {
+  //     alert("image uploaded successfully");
+  //     setImage(file);
+  //     // console.log("Selected file:", file);
+  //     const reader = new FileReader();
+  //     reader.onload = (e) => {
+  //       setUploadedImage(e.target.result);
+  //     };
+  //     reader.readAsDataURL(file);
+  //   }
+  // };
 
   const handleSubmit = async (e) => {
-    if (!image) {
-      alert("Please upload an image.");
-      return;
-    }
-
     if (input.length < 1) {
       alert("Please enter prompt...");
       return;
     }
 
     setIsLoading(true);
-    console.log(input);
-    setRecentPrompt(input);
-    setInput("");
+    // console.log(input);
+    // setRecentPrompt(input);
+    // setInput("");
 
-    const formData = new FormData();
-    formData.append("image", image);
-    formData.append("prompt", recentPrompt);
 
     try {
       const response = await axios.post(
-        "https://gpt-backend-f39t.onrender.com/api/process-image",
-        formData,
+        "http://20.193.128.47:8020/api/draft-contract",
         {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
+          "query": input
+        },
       );
-      setResult(response.data.extractedText);
+      setResult(response.data.contract);
+      console.log(response.data.contract);
+      setInput("");
     } catch (error) {
-      console.error(error);
-      alert("An error occurred while processing the image.");
+      console.log(error);
     } finally {
       setIsLoading(false);
     }
@@ -83,17 +73,19 @@ const Main = () => {
   return (
     <div className="main">
       <div className="nav">
-        <p>Image Text Processor</p>
+        <div className="" >
+        <img className="logo" src={`https://media.istockphoto.com/id/2174552585/photo/judges-gavel-as-a-symbol-of-legal-system-and-wooden-stand-with-text-word.webp?a=1&b=1&s=612x612&w=0&k=20&c=y0lhzMkn0xF96Faoq2YhRDpM-6NtYj5nEOx0H56epzk=`} alt="" />
+        </div>
         <img src={assets.user} alt="" />
       </div>
       <div className="main-container">
         <>
           { !uploadedImage && <div className="greet">
-            <p className="color-text">Demo for Mr. Debashis Chakraborty</p>
+            <p className="color-text">Demo for Legal AI</p>
 
-            <p className="editor-name">
+            {/* <p className="editor-name">
               Please upload your document to proceed
-            </p>
+            </p> */}
           </div>}
         </>
 
@@ -102,7 +94,7 @@ const Main = () => {
             <div className="result-des">
              <div className="result-extra">
                 <img src={assets.user} alt="" />
-                <p className="result-prompt">Promt: {recentPrompt}</p>
+                {/* <p className="result-prompt">Promt: {recentPrompt}</p> */}
               </div>
             {uploadedImage && (
             <div>
@@ -155,13 +147,13 @@ const Main = () => {
                   }}
                 />
               </label>
-              <input
+              {/* <input
                 type="file"
                 id="image"
                 accept="image/*"
                 style={{ display: "none" }}
                 onChange={handleFileChange}
-              />
+              /> */}
 
               <img
                 src={assets.send_icon}

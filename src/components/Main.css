@@ -12,6 +12,12 @@
     padding: 20px;
     color: #585858;
 }
+.logo{
+    width: 100px !important;
+    height: 100px;
+    border-radius: 10px !important;
+    
+}
 .main .nav img{
     width: 40px;
     border-radius: 50px;
@@ -108,8 +114,9 @@
 }
 .result{
     padding: 0px 5%;
-    max-height: 70vh;
-    overflow-y: scroll;
+    /* max-height: 70vh; */
+    /* overflow-y: scroll; */
+    /* background-color: yellow; */
 }
 .result::-webkit-scrollbar{
     display: none;
